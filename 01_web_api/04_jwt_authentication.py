@@ -3,16 +3,28 @@
 """
 import jwt
 import datetime
+import hashlib
 from functools import wraps
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
 
-# 가상 사용자 데이터베이스
+def hash_password(password):
+    """비밀번호를 SHA256으로 해싱"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# 가상 사용자 데이터베이스 (비밀번호는 해시값으로 저장)
+# 원본: admin123, user123
 users = {
-    'admin': {'password': 'admin123', 'role': 'admin'},
-    'user': {'password': 'user123', 'role': 'user'}
+    'admin': {
+        'password': hash_password('admin123'),
+        'role': 'admin'
+    },
+    'user': {
+        'password': hash_password('user123'),
+        'role': 'user'
+    }
 }
 
 def generate_token(username, role):
@@ -86,7 +98,8 @@ def login():
         return jsonify({'message': 'Username and password required'}), 400
 
     user = users.get(username)
-    if not user or user['password'] != password:
+    # 비밀번호를 해시하여 비교 (보안 개선)
+    if not user or user['password'] != hash_password(password):
         return jsonify({'message': 'Invalid credentials'}), 401
 
     token = generate_token(username, user['role'])

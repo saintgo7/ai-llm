@@ -5,6 +5,7 @@ import json
 import hashlib
 import secrets
 import string
+from datetime import datetime
 from cryptography.fernet import Fernet
 from getpass import getpass
 import os
@@ -240,8 +241,6 @@ class PasswordManager:
 
 def main():
     """CLI 인터페이스"""
-    from datetime import datetime
-
     print("=== Password Manager ===\n")
 
     # 마스터 비밀번호 입력
