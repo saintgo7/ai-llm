@@ -1,0 +1,82 @@
+# NPU-LLM Configuration File
+# This file contains default settings for the NPU-LLM inference system
+
+# Model settings
+model:
+  # Directory to cache downloaded and converted models
+  cache_dir: ~/.cache/npu_llm
+
+  # Default backend for inference ('openvino' or 'onnxruntime')
+  default_backend: openvino
+
+  # Default device for inference ('NPU', 'CPU', 'GPU', or 'AUTO')
+  default_device: NPU
+
+  # Model-specific settings (optional)
+  # Uncomment and modify as needed
+  # model_id: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  # export_format: openvino
+
+# Inference settings
+inference:
+  # Maximum length of generated text (in tokens)
+  max_length: 512
+
+  # Sampling temperature (0.0 = deterministic, higher = more random)
+  temperature: 0.7
+
+  # Nucleus sampling parameter (0.0-1.0)
+  top_p: 0.9
+
+  # Top-k sampling parameter
+  top_k: 50
+
+  # Number of sequences to generate
+  num_return_sequences: 1
+
+# OpenVINO-specific settings
+openvino:
+  # Performance hints ('LATENCY', 'THROUGHPUT', 'CUMULATIVE_THROUGHPUT')
+  performance_hint: LATENCY
+
+  # Number of inference requests for async execution
+  num_requests: 1
+
+  # Additional device properties (optional)
+  # device_properties:
+  #   NPU:
+  #     NUM_STREAMS: 1
+
+# ONNX Runtime-specific settings
+onnxruntime:
+  # Execution providers in priority order
+  providers:
+    - CPUExecutionProvider
+
+  # Graph optimization level ('disable', 'basic', 'extended', 'all')
+  optimization_level: all
+
+  # Enable/disable memory pattern optimization
+  enable_mem_pattern: true
+
+# Logging settings
+logging:
+  # Log level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+  level: INFO
+
+  # Optional log file path (null = console only)
+  file: null
+
+  # Log format
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+# Performance and monitoring
+performance:
+  # Enable performance profiling
+  enable_profiling: false
+
+  # Warm-up iterations before benchmarking
+  warmup_iterations: 3
+
+  # Benchmark iterations
+  benchmark_iterations: 10
