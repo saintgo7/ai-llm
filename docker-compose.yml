@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # REST API Server
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-llm-api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - API_PORT=5000
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./01_web_api:/app/01_web_api
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # JWT Authentication Server
+  auth-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-llm-auth
+    command: python 01_web_api/04_jwt_authentication.py
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-jwt-secret}
+      - JWT_EXPIRATION_HOURS=24
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./01_web_api:/app/01_web_api
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Database Service (for examples)
+  database:
+    image: postgres:14-alpine
+    container_name: ai-llm-db
+    environment:
+      - POSTGRES_USER=appuser
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}
+      - POSTGRES_DB=appdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache (for caching examples)
+  redis:
+    image: redis:7-alpine
+    container_name: ai-llm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  app-network:
+    driver: bridge
