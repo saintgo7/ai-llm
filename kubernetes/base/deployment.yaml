@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  labels:
+    app: ai-llm
+    component: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ai-llm
+      component: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ai-llm
+        component: api
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: api
+        image: ai-llm:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-llm-secrets
+              key: secret-key
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ai-llm-config
+              key: database-url
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-server
+  labels:
+    app: ai-llm
+    component: auth
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-llm
+      component: auth
+  template:
+    metadata:
+      labels:
+        app: ai-llm
+        component: auth
+        version: v1
+    spec:
+      containers:
+      - name: auth
+        image: ai-llm:latest
+        command: ["python", "01_web_api/04_jwt_authentication.py"]
+        ports:
+        - containerPort: 5001
+          name: http
+        env:
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-llm-secrets
+              key: jwt-secret
+        - name: JWT_EXPIRATION_HOURS
+          value: "24"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /api/verify
+            port: 5001
+            httpHeaders:
+            - name: Authorization
+              value: "Bearer test"
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/verify
+            port: 5001
+          initialDelaySeconds: 10
+          periodSeconds: 5
