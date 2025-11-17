@@ -2,6 +2,18 @@
 
 A comprehensive collection of 50 complete, working Python programs covering various IT domains. Each program is fully functional and demonstrates real-world programming concepts.
 
+## 📁 Project Structure
+
+```
+ai-llm/
+├── 01_web_api/              # Web & API Examples (01-10)
+├── 02_data_structures_algorithms/  # Data Structures & Algorithms (11-20)
+├── 03_database_file_processing/    # Database & File Processing (21-30)
+├── 04_automation_utilities/        # Automation & Utilities (31-40)
+├── 05_games_advanced/              # Games & Advanced Projects (41-50)
+└── README.md
+```
+
 ## 📚 Table of Contents
 
 - [Web & API Examples (01-10)](#web--api-examples-01-10)
@@ -112,11 +124,21 @@ pip install selenium qrcode reportlab pyttsx3 gtts psutil pyjwt
 ## 🚀 Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/saintgo7/ai-llm.git
+cd ai-llm
+
+# Navigate to a category
+cd 01_web_api
+
 # Run any program
 python 01_rest_api_server.py
 
-# Or explore a specific category
+# Or explore other categories
+cd ../02_data_structures_algorithms
 python 11_binary_search_tree.py
+
+cd ../05_games_advanced
 python 41_tic_tac_toe.py
 ```
 
