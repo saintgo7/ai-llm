@@ -20,8 +20,11 @@
 ```bash
 ssh master
 cd /path/to/ai-llm
-./scripts/gpu_cluster_diag.sh master n1 n3
+bash scripts/gpu_cluster_diag.sh master n1 n3
 ```
+
+> git clone 직후에는 실행 권한이 없을 수 있습니다. `./scripts/...` 형태로 쓰려면
+> `chmod +x scripts/*.sh` 를 한 번 실행하십시오.
 
 읽기 전용 점검만 수행하며 시스템 설정을 변경하지 않습니다. 소요 시간 약 5분.
 결과는 `gpu_diag_<타임스탬프>/report.txt`에 저장됩니다.
