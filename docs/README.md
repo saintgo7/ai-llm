@@ -51,7 +51,7 @@ DOCX/HWPX는 md에서 변환된 산출물입니다. md를 고쳤으면 재변환
 
 ```bash
 pip install python-docx python-hwpx   # 최초 1회
-./scripts/build_docs.sh
+bash scripts/build_docs.sh
 ```
 
 ## 회신 시 핵심 논지
