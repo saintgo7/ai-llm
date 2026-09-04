@@ -1,0 +1,5 @@
+# 생성 산출물 (scripts/build_docs.sh 로 재생성)
+docs/출력/
+
+# 진단 스크립트 결과
+gpu_diag_*/
